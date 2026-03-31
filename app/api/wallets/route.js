@@ -4,7 +4,7 @@ export async function GET(request) {
   var target = "";
 
   if (type === "leaderboard") {
-    target = "https://gamma-api.polymarket.com/profiles?order=volume&ascending=false&limit=25";
+    target = "https://data-api.polymarket.com/v1/leaderboard?timePeriod=MONTH&orderBy=PNL&limit=25";
   } else if (type === "positions") {
     var user = url.searchParams.get("user");
     if (!user) return new Response(JSON.stringify({ error: "missing user" }), { status: 400 });
@@ -19,10 +19,7 @@ export async function GET(request) {
 
   try {
     var r = await fetch(target, { headers: { "Accept": "application/json" } });
-    if (!r.ok) {
-      var txt = await r.text();
-      return new Response(JSON.stringify({ error: "API " + r.status, detail: txt.substring(0, 200) }), { status: 502 });
-    }
+    if (!r.ok) return new Response(JSON.stringify({ error: "API " + r.status }), { status: 502 });
     var data = await r.json();
     return new Response(JSON.stringify(data), { headers: { "Content-Type": "application/json" } });
   } catch (e) {
