@@ -87,7 +87,7 @@ export default function App(){
 
   var fetchHistory=function(mk){
     if(!mk.tokenId)return;
-    fetch(CLOB+"/prices-history?market="+mk.tokenId+"&interval=1d&fidelity=60")
+    fetch("/api/history?token="+mk.tokenId)
     .then(function(r){return r.json();})
     .then(function(data){
       if(!data||!data.history||!data.history.length)return;
