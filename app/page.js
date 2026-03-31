@@ -42,7 +42,7 @@ export default function App(){
   // Fetch markets from Gamma API
   var loadMarkets=useCallback(function(){
     setLoading(true);setErr(null);
-    fetch(GAMMA+"/events?closed=false&active=true&limit=100&order=volume24hr&ascending=false")
+    fetch("/api/markets")
     .then(function(r){return r.json();})
     .then(function(events){
       var parsed=[];
