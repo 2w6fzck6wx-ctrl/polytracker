@@ -29,6 +29,7 @@ export default function App(){
   var _tr=useState(function(){return lsGet("poly_trades",[]);}),trades=_tr[0],setTradesR=_tr[1];
   var setTrades=function(v){setTradesR(v);lsSet("poly_trades",v);};
   var _sort=useState("signal"),sortBy=_sort[0],setSortBy=_sort[1];
+  var _sh=useState(false),sharpOnly=_sh[0],setSharpOnly=_sh[1];
   // Wallet intelligence
   var _wl=useState([]),whales=_wl[0],setWhales=_wl[1];
   var _wp=useState(null),walletSel=_wp[0],setWalletSel=_wp[1];
@@ -99,7 +100,7 @@ export default function App(){
   var settleTrade=function(idx,won){setTrades(trades.map(function(t,i){return i===idx?merge(t,{result:won?"win":"loss"}):t;}));};
   var toggleWatch=function(mk){var ex=watchlist.some(function(w){return w.id===mk.id;});if(ex)setWatch(watchlist.filter(function(w){return w.id!==mk.id;}));else setWatch([{id:mk.id,q:mk.question.substring(0,50)}].concat(watchlist));};
 
-  var filtered=markets.filter(function(m){return cat==="All"||m.category===cat;});
+  var filtered=markets.filter(function(m){if(cat!=="All"&&m.category!==cat)return false;if(sharpOnly){if(m.liq<50000)return false;if(Math.abs(m.signal)<20)return false;if(m.yes>0.95||m.yes<0.05)return false;}return true;});
   var sorted=filtered.slice().sort(function(a,b){if(sortBy==="signal")return Math.abs(b.signal)-Math.abs(a.signal);if(sortBy==="volume")return b.vol24-a.vol24;return Math.abs(a.rsi-50)-Math.abs(b.rsi-50);});
   var settled=trades.filter(function(t){return t.result;});
   var totalIn=settled.reduce(function(s,t){return s+t.amount;},0);
@@ -135,6 +136,7 @@ export default function App(){
         <div style={{padding:"8px 16px",display:"flex",gap:8,alignItems:"center",borderBottom:"1px solid "+C.bd}}>
           <span style={{fontSize:10,color:C.mt}}>{"Sortera:"}</span>
           {[["signal","Signal"],["volume","Volym"],["rsi","RSI"]].map(function(s){return <button key={s[0]} onClick={function(){setSortBy(s[0]);}} className="r" style={{fontSize:10,padding:"3px 8px",borderRadius:4,background:sortBy===s[0]?C.ag:"transparent",border:"none",color:sortBy===s[0]?"#a78bfa":C.mt}}>{s[1]}</button>;})}
+          <button onClick={function(){setSharpOnly(!sharpOnly);}} className="r" style={{fontSize:10,padding:"3px 8px",borderRadius:4,background:sharpOnly?"rgba(16,185,129,.15)":"transparent",border:sharpOnly?"1px solid rgba(16,185,129,.3)":"none",color:sharpOnly?"#10b981":"#475569",fontWeight:sharpOnly?600:400}}>{"SKARPT"}</button>
         </div>
 
         {loading&&!sorted.length?<div style={{padding:40,textAlign:"center",color:C.mt,fontSize:12}} className="blink">{"Skannar Polymarket..."}</div>
